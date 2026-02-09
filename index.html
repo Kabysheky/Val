@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KASH_PROTOCOL_V12_LETTER</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    
+    <style>
+        :root { --neon: #0f0; --love: #ff007f; }
+        body { margin: 0; background: #000; color: var(--neon); font-family: 'Courier New', monospace; overflow: hidden; }
+        
+        .crt-bg { position: fixed; inset: 0; z-index: 10; pointer-events: none; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); background-size: 100% 3px, 3px 100%; }
+
+        .ui-screen { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; transition: 0.5s; }
+        .terminal-box { border: 2px solid var(--neon); padding: 30px; width: 85%; background: rgba(0,0,0,0.9); box-shadow: 0 0 40px var(--neon); text-align: center; }
+        
+        /* The Letter Overlay */
+        #letter-screen { 
+            position: fixed; inset: 0; z-index: 3000; 
+            background: rgba(0,0,0,0.95); 
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .letter-content {
+            background: #fff; color: #333; padding: 40px 25px;
+            width: 85%; max-height: 70vh; overflow-y: auto;
+            font-family: 'Georgia', serif; line-height: 1.6;
+            border-radius: 2px; box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        .letter-content::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 10px; background: var(--love); }
+
+        .glitch { font-size: 1.8rem; font-weight: bold; text-shadow: 2px 2px var(--love); animation: glitch-anim 0.2s infinite; }
+        @keyframes glitch-anim { 0% { transform: translate(0); } 20% { transform: translate(-2px, 1px); } 40% { transform: translate(2px, -1px); } 100% { transform: translate(0); } }
+
+        button { background: var(--neon); color: #000; border: none; padding: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 20px; }
+        
+        #final-stage { display: none; opacity: 0; background: radial-gradient(circle, #300030 0%, #000 100%); z-index: 4000; }
+        #final-stage.active { display: flex; opacity: 1; }
+        #final-stage .terminal-box { border-color: var(--love); box-shadow: 0 0 60px var(--love); }
+        #final-stage button { background: var(--love); color: #fff; border-radius: 50px; animation: pulse 1s infinite; }
+        
+        #progress-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 6px; background: #222; z-index: 2006; }
+        #progress-bar { width: 0%; height: 100%; background: var(--neon); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="crt-bg"></div>
+
+    <div id="auth" class="ui-screen">
+        <div class="terminal-box">
+            <div class="glitch">KASH_PROTOCOL_V12</div>
+            <input type="password" id="pass" placeholder="PIN" style="background:transparent; border:none; border-bottom:2px solid var(--neon); color:var(--neon); text-align:center; font-size:2rem; margin:20px 0; outline:none; width: 60%;" inputmode="numeric">
+            <button onclick="checkKey()">DECRYPT_SYSTEM</button>
+        </div>
+    </div>
+
+    <div id="start-prompt" class="ui-screen hidden">
+        <div class="terminal-box">
+            <p>ENCRYPTION_CLEARED</p>
+            <button onclick="startExperience()">CONNECT_INTERFACE</button>
+        </div>
+    </div>
+
+    <div id="experience" class="hidden">
+        <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" 
+                 renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 2;"
+                 vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+            
+            <a-assets> 
+                <video id="vid" src="montage.mp4" preload="metadata" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+            </a-assets>
+
+            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+            
+            <a-entity mindar-image-target="targetIndex: 0">
+                <a-video id="ar-video-obj" src="#vid" width="1" height="0.6" position="0 0 0.1"></a-video>
+                
+                <a-entity position="0 0.65 0.2">
+                    <a-text value="I LOVE YOU" color="#ff007f" align="center" width="5" font="exo2bold"
+                            animation="property: scale; to: 1.1 1.1 1.1; dir: alternate; loop: true; dur: 600"></a-text>
+                </a-entity>
+
+                <a-entity position="0.7 0 0.2" geometry="primitive: box; width: 0.15; height: 0.1; depth: 0.01" material="color: #fff; opacity: 0.8"
+                          animation="property: rotation; to: 0 360 0; loop: true; dur: 3000">
+                    <a-text value="LETTER" color="#000" align="center" width="2" position="0 0 0.01"></a-text>
+                </a-entity>
+
+                <a-entity geometry="primitive: torus; radius: 0.7; tube: 0.005" material="color: #0f0; opacity: 0.5" rotation="90 0 0" animation="property: rotation; to: 90 360 0; loop: true; dur: 4000"></a-entity>
+            </a-entity>
+        </a-scene>
+        <div id="progress-container"><div id="progress-bar"></div></div>
+    </div>
+
+    <div id="letter-screen">
+        <div class="letter-content">
+            <p>My Dearest [Name],</p>
+            <p>I wanted to create something as special as you are. This protocol was designed to remind you that even in a world of code and chaos, what we have is the most real thing I know.</p>
+            <p>You are my heart's reality anchor. I love you more than words (or code) can ever express.</p>
+            <p>Forever yours,<br>Kash</p>
+        </div>
+        <button onclick="closeLetter()" style="background:var(--love); color:#fff; width: 85%; font-size: 14px;">FINALIZE_PROTOCOL</button>
+    </div>
+
+    <div id="final-stage" class="ui-screen">
+        <div class="terminal-box">
+            <h2 class="glitch" style="color: var(--love);">KASH_COMPLETE</h2>
+            <model-viewer id="gift-viewer" src="gift.glb" ar ar-modes="scene-viewer quick-look" 
+                camera-controls auto-rotate shadow-intensity="2" environment-image="neutral" exposure="2.5"
+                style="width:100%; height:300px;">
+                <button slot="ar-button" style="background:var(--love); padding: 15px; border-radius: 5px; color:#fff; border:none;">VIEW_GIFT</button>
+            </model-viewer>
+        </div>
+    </div>
+
+    <script>
+        const v = document.getElementById('vid');
+        const exp = document.getElementById('experience');
+        const fin = document.getElementById('final-stage');
+        const letter = document.getElementById('letter-screen');
+        const prog = document.getElementById('progress-bar');
+
+        function checkKey() {
+            if(document.getElementById('pass').value === '0203') {
+                document.getElementById('auth').classList.add('hidden');
+                document.getElementById('start-prompt').classList.remove('hidden');
+            }
+        }
+
+        function startExperience() {
+            document.getElementById('start-prompt').classList.add('hidden');
+            exp.classList.remove('hidden');
+            v.muted = false; 
+            v.play();
+            const sceneEl = document.querySelector('a-scene');
+            sceneEl.systems["mindar-image-system"].start();
+        }
+
+        v.ontimeupdate = () => {
+            prog.style.width = (v.currentTime / v.duration) * 100 + "%";
+            if (v.currentTime > 0 && v.currentTime >= v.duration - 0.4) {
+                showLetter();
+            }
+        };
+
+        function showLetter() {
+            const sc = document.querySelector('a-scene');
+            if(sc.systems["mindar-image-system"]) sc.systems["mindar-image-system"].stop();
+            v.pause();
+            exp.classList.add('hidden');
+            letter.style.display = 'flex';
+        }
+
+        function closeLetter() {
+            letter.style.display = 'none';
+            fin.classList.add('active');
+        }
+    </script>
+</body>
+</html>
